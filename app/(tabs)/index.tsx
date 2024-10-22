@@ -4,6 +4,9 @@ import { Text, View } from '@/components/Themed';
 import DreamForm from '@/components/DreamForm';
 
 export default function TabOneScreen() {
+
+  console.log("Coucou");
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Tab One</Text>
