@@ -1,17 +1,13 @@
 // TabThreeScreen.tsx
+import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Text, View } from '@/components/Themed';
-import { useFocusEffect } from '@react-navigation/native'; // Importer le hook
+import { View } from '@/components/Themed';
+import UserProfile from '@/components/UserProfile'; // Assurez-vous que le chemin est correct
 
 export default function TabThreeScreen() {
-  useFocusEffect(() => {
-    console.log('Tab Three'); // Message dans la console
-  });
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab Three</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+      <UserProfile />
     </View>
   );
 }
@@ -21,9 +17,5 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
   },
 });

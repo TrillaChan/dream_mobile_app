@@ -1,18 +1,28 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native'; 
-import { TextInput, Button, Checkbox } from 'react-native-paper';
+import { View, StyleSheet, Dimensions, ScrollView, Text } from 'react-native';
+import { TextInput, Button, RadioButton, Menu, Divider } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
 export default function DreamForm() {
-    
     const [dreamText, setDreamText] = useState('');
-    const [isLucidDream, setIsLucidDream] = useState(false);
     const [date, setDate] = useState('');
+    const [time, setTime] = useState('');
+    const [dreamType, setDreamType] = useState(''); // Type de rêve sélectionné
+    const [emotionalStateBefore, setEmotionalStateBefore] = useState('');
+    const [emotionalStateAfter, setEmotionalStateAfter] = useState('');
+    const [characters, setCharacters] = useState('');
+    const [location, setLocation] = useState('');
+    const [emotionalIntensity, setEmotionalIntensity] = useState('');
+    const [dreamClarity, setDreamClarity] = useState('');
+    const [sleepQuality, setSleepQuality] = useState('');
+    const [personalMeaning, setPersonalMeaning] = useState('');
+    const [overallTone, setOverallTone] = useState('neutral');
     const [hashtag1, setHashtag1] = useState('');
     const [hashtag2, setHashtag2] = useState('');
     const [hashtag3, setHashtag3] = useState('');
+    const [menuVisible, setMenuVisible] = useState(false);
 
     const findHashtagIdByLabel = async (hashtag) => {
         try {
@@ -38,10 +48,9 @@ export default function DreamForm() {
             return null;
         }
     };
-
+    
     const handleDreamSubmission = async () => {
         try {
-            // Récupérer le tableau actuel depuis AsyncStorage
             const existingData = await AsyncStorage.getItem('dreamFormDataArray');
             const formDataArray = existingData ? JSON.parse(existingData) : [];
 
@@ -50,24 +59,42 @@ export default function DreamForm() {
             const hashtag2Id = await findHashtagIdByLabel(hashtag2);
             const hashtag3Id = await findHashtagIdByLabel(hashtag3);
 
-            // Ajouter le nouveau formulaire au tableau
             formDataArray.push({
-                dreamText: dreamText,
-                isLucidDream: isLucidDream,
-                todayDate: new Date(),
+                dreamText,
+                date,
+                time,
+                dreamType,
+                emotionalStateBefore,
+                emotionalStateAfter,
+                characters,
+                location,
+                emotionalIntensity,
+                dreamClarity,
+                sleepQuality,
+                personalMeaning,
+                overallTone,
                 hashtags: [
-                    { id: hashtag1Id, label: hashtag1 },
-                    { id: hashtag2Id, label: hashtag2 },
-                    { id: hashtag3Id, label: hashtag3 },
+                    { label: hashtag1 },
+                    { label: hashtag2 },
+                    { label: hashtag3 },
                 ],
             });
 
-            // Sauvegarder le tableau mis à jour dans AsyncStorage
             await AsyncStorage.setItem('dreamFormDataArray', JSON.stringify(formDataArray));
 
-            // Réinitialiser les champs du formulaire
             setDreamText('');
-            setIsLucidDream(false);
+            setDate('');
+            setTime('');
+            setDreamType('');
+            setEmotionalStateBefore('');
+            setEmotionalStateAfter('');
+            setCharacters('');
+            setLocation('');
+            setEmotionalIntensity('');
+            setDreamClarity('');
+            setSleepQuality('');
+            setPersonalMeaning('');
+            setOverallTone('neutral');
             setHashtag1('');
             setHashtag2('');
             setHashtag3('');
@@ -77,71 +104,80 @@ export default function DreamForm() {
     };
 
     return (
-        <View style={styles.container}>
-            <TextInput
-                label="Rêve"
-                value={dreamText}
-                onChangeText={(text) => setDreamText(text)}
-                style={[styles.input, { width: width * 0.8, alignSelf: 'center' }]}
-            />
+        <ScrollView contentContainerStyle={styles.container}>
+            <TextInput label="Rêve" value={dreamText} onChangeText={setDreamText} style={styles.input} />
+            <TextInput label="Date du Rêve" value={date} onChangeText={setDate} style={styles.input} />
+            <TextInput label="Heure du Rêve" value={time} onChangeText={setTime} style={styles.input} />
 
-            <TextInput
-                label="Hashtag 1"
-                value={hashtag1}
-                onChangeText={(hashtag1) => setHashtag1(hashtag1)}
-                mode="outlined"
-                style={[styles.input, { width: width * 0.8, alignSelf: 'center' }]}
-            />
-            <TextInput
-                label="Hashtag 2"
-                value={hashtag2}
-                onChangeText={(hashtag2) => setHashtag2(hashtag2)}
-                mode="outlined"
-                style={[styles.input, { width: width * 0.8, alignSelf: 'center' }]}
-            />
-            <TextInput
-                label="Hashtag 3"
-                value={hashtag3}
-                onChangeText={(hashtag3) => setHashtag3(hashtag3)}
-                mode="outlined"
-                style={[styles.input, { width: width * 0.8, alignSelf: 'center' }]}
-            />
-
-            <View style={styles.checkboxContainer}>
-                <Checkbox.Item
-                    label="Rêve Lucide"
-                    status={isLucidDream ? 'checked' : 'unchecked'}
-                    onPress={() => setIsLucidDream(!isLucidDream)}
-                />
+            <View style={styles.dropdownContainer}>
+                <Text style={styles.label}>Type de Rêve</Text>
+                <Menu
+                    visible={menuVisible}
+                    onDismiss={() => setMenuVisible(false)}
+                    anchor={
+                        <Button mode="outlined" onPress={() => setMenuVisible(true)}>
+                            {dreamType || "Sélectionner le type de rêve"}
+                        </Button>
+                    }
+                >
+                    <Menu.Item onPress={() => { setDreamType("Cauchemar"); setMenuVisible(false); }} title="Cauchemar" />
+                    <Divider />
+                    <Menu.Item onPress={() => { setDreamType("Rêve Lucide"); setMenuVisible(false); }} title="Rêve Lucide" />
+                    <Divider />
+                    <Menu.Item onPress={() => { setDreamType("Rêve Ordinaire"); setMenuVisible(false); }} title="Rêve Ordinaire" />
+                    <Divider />
+                    <Menu.Item onPress={() => { setDreamType("Autre"); setMenuVisible(false); }} title="Autre" />
+                </Menu>
             </View>
-            <TextInput
-                label="Date"
-                value={date}
-                onChangeText={(text) => setDate(text)}
-                mode="outlined"
-                style={[styles.input, { width: width * 0.8, alignSelf: 'center' }]}
-            />
-            
+
+            <TextInput label="État émotionnel avant" value={emotionalStateBefore} onChangeText={setEmotionalStateBefore} style={styles.input} />
+            <TextInput label="État émotionnel après" value={emotionalStateAfter} onChangeText={setEmotionalStateAfter} style={styles.input} />
+            <TextInput label="Personnages" value={characters} onChangeText={setCharacters} style={styles.input} />
+            <TextInput label="Lieu" value={location} onChangeText={setLocation} style={styles.input} />
+            <TextInput label="Intensité émotionnelle (1-10)" value={emotionalIntensity} onChangeText={setEmotionalIntensity} keyboardType="numeric" style={styles.input} />
+            <TextInput label="Clarté du rêve (1-10)" value={dreamClarity} onChangeText={setDreamClarity} keyboardType="numeric" style={styles.input} />
+            <TextInput label="Qualité du sommeil (1-10)" value={sleepQuality} onChangeText={setSleepQuality} keyboardType="numeric" style={styles.input} />
+            <TextInput label="Signification personnelle" value={personalMeaning} onChangeText={setPersonalMeaning} style={styles.input} />
+
+            <Text style={styles.label}>Tonalité globale :</Text>
+            <RadioButton.Group onValueChange={setOverallTone} value={overallTone}>
+                <RadioButton.Item label="Positive" value="positive" />
+                <RadioButton.Item label="Négative" value="negative" />
+                <RadioButton.Item label="Neutre" value="neutral" />
+            </RadioButton.Group>
+
+            <TextInput label="Hashtag 1" value={hashtag1} onChangeText={setHashtag1} style={styles.input} />
+            <TextInput label="Hashtag 2" value={hashtag2} onChangeText={setHashtag2} style={styles.input} />
+            <TextInput label="Hashtag 3" value={hashtag3} onChangeText={setHashtag3} style={styles.input} />
+
             <Button mode="contained" onPress={handleDreamSubmission} style={styles.button}>
                 Soumettre
             </Button>
-        </View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         padding: 16,
+        alignItems: 'center',
     },
     input: {
         marginBottom: 16,
-    },
-    checkboxContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 16,
+        width: width * 0.8,
     },
     button: {
         marginTop: 8,
+    },
+    label: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginVertical: 8,
+        textAlign: 'center',
+    },
+    dropdownContainer: {
+        width: width * 0.8,
+        marginBottom: 16,
+        alignItems: 'center',
     },
 });
